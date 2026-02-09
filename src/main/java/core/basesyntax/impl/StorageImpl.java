@@ -1,22 +1,37 @@
 package core.basesyntax.impl;
 
 import core.basesyntax.Storage;
-import java.util.Objects;
 
 public class StorageImpl<K, V> implements Storage<K, V> {
-    private K[] keyArray = (K[]) new Object[10];
-    private V[] valueArray = (V[]) new Object[10];
+    private static final int MAX_CAPACITY = 10;
+    private K[] keyArray;
+    private V[] valueArray;
+
+    public StorageImpl() {
+        this.keyArray = (K[]) new Object[MAX_CAPACITY];
+        this.valueArray = (V[]) new Object[MAX_CAPACITY];
+    }
+
+    private int findKeyIndex(K key) {
+        for (int i = 0; i < keyArray.length; i++) {
+            if (key == null ? keyArray[i] == null : key.equals(keyArray[i])) {
+                return i;
+            }
+        }
+        return -1; // ключ не найден
+    }
 
     @Override
     public void put(K key, V value) {
+        int index = findKeyIndex(key);
         for (int i = 0; i < keyArray.length; i++) {
-            if (Objects.equals(keyArray[i], key)) {
-                valueArray[i] = value;
+            if (index != -1) {
+                valueArray[index] = value;
                 return;
             }
         }
         for (int i = 0; i < keyArray.length; i++) {
-            if (keyArray[i] == null && valueArray[i] == null) {
+            if (valueArray[i] == null) {
                 keyArray[i] = key;
                 valueArray[i] = value;
                 return;
@@ -26,9 +41,10 @@ public class StorageImpl<K, V> implements Storage<K, V> {
 
     @Override
     public V get(K key) {
+        int index = findKeyIndex(key);
         for (int i = 0; i < keyArray.length; i++) {
-            if (Objects.equals(keyArray[i], key)) {
-                return valueArray[i];
+            if (index != -1) {
+                return valueArray[index];
             }
         }
         return null;
